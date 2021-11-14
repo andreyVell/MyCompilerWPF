@@ -54,8 +54,7 @@ namespace MyCompilerWPF
                 MessageBox.Show(exc.Message);
                 if (exc.Message.Contains("error"))
                     textBoxOutput.Text = ioModule.errorOutput();
-            }            
-            //lol
+            }
         }
     }
     
