@@ -4,24 +4,127 @@ using System.Text;
 
 namespace MyCompilerWPF
 {
-    class CToken
+    enum ETokenType
     {
-        enum ETokenType
+        ttOper,
+        ttIdent,
+        ttValue
+    }
+    enum EOperator
+    {
+        //Operators
+        star, // *
+        slash, // /
+        equal, // =
+        comma, // ,
+        semicolon, // ;
+        colon, // :
+        pointsy, // .
+        arrowsy, // ^
+        leftparsy, // (
+        rightparsy, // )
+        lbracketsy, // [
+        rbracketsy, // ]
+        flparsy, // {  start comment
+        frparsy, // }    end comment
+        latersy, // <
+        greatersy, // >
+        laterequalsy, // <=
+        greaterequalsy, // =>
+        latergreatersy, // <>
+        plussy, // +
+        minussy, // -
+        lcommentsy, // (*
+        rcommentsy, // *)
+        assignsy, // :=
+        twopointssy, // ..
+        //key words
+        ifsy,
+        dosy,
+        ofsy,
+        orsy,
+        insy,
+        tosy,
+        endsy,
+        varsy,
+        divsy,
+        andsy,
+        notsy,
+        forsy,
+        modsy,
+        nilsy,
+        setsy,
+        thensy,
+        elsesy,
+        casesy,
+        filesy,
+        gotosy,
+        typesy,
+        withsy,
+        beginsy,
+        whilesy,
+        arraysy,
+        constsy,
+        labelsy,
+        untilsy,
+        downtosy,
+        packedsy,
+        recordsy,
+        repeatsy,
+        programsy,
+        functionsy,
+        proceduresy,
+    }
+    enum EValType
+    {
+        vtInt = 0x1,
+        vtReal = 0x2,
+        vtString = 0x4,
+        vtChar = 0x8
+    }
+    class CToken    
+    {        
+        public ETokenType tokenType { get; private set; }
+        public EOperator operation { get; private set; }
+        public EValType valType { get; private set; }
+        public string identName { get; private set; }
+        public int ivalue { get; private set; }
+        public double dvalue { get; private set; }
+        public string svalue { get; private set; }
+        public char cvalue { get; private set; }
+        public CToken(int value) //ttValue int
         {
-            ttOper,
-            ttIdent,
-            ttValue
+            ivalue = value;
+            tokenType = ETokenType.ttValue;
+            valType = EValType.vtInt;
         }
-        enum EOperator
+        public CToken(double value) //ttValue real
         {
-
+            dvalue = value;
+            tokenType = ETokenType.ttValue;
+            valType = EValType.vtReal;
         }
-        enum EValType
+        public CToken(char value) //ttValue char
         {
-            vtInt = 0x1,
-            vtReal = 0x2,
-            vtString = 0x4,
-            vtChar = 0x8
+            cvalue = value;
+            tokenType = ETokenType.ttValue;
+            valType = EValType.vtChar;
+        }
+        public CToken(string value) //ttValue string
+        {
+            svalue = value;
+            tokenType = ETokenType.ttValue;
+            valType = EValType.vtString;
+        }
+        public CToken(EOperator op) //ttOper
+        {
+            operation = op;
+            tokenType = ETokenType.ttOper;
+        }
+        public CToken(string userIdentName,int ident) //ttIdent
+        {
+            identName = userIdentName;
+            tokenType = ETokenType.ttIdent;
         }
     }
 }
