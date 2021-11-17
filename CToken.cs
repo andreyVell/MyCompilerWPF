@@ -13,29 +13,25 @@ namespace MyCompilerWPF
     enum EOperator
     {
         //Operators
-        star, // *
-        slash, // /
-        equal, // =
-        comma, // ,
-        semicolon, // ;
-        colon, // :
+        starsy, // *
+        slashsy, // /
+        equalsy, // =
+        commasy, // ,
+        semicolonsy, // ;
+        colonsy, // :
         pointsy, // .
         arrowsy, // ^
         leftparsy, // (
         rightparsy, // )
         lbracketsy, // [
-        rbracketsy, // ]
-        flparsy, // {  start comment
-        frparsy, // }    end comment
+        rbracketsy, // ]        
         latersy, // <
         greatersy, // >
         laterequalsy, // <=
-        greaterequalsy, // =>
+        greaterequalsy, // >=
         latergreatersy, // <>
         plussy, // +
-        minussy, // -
-        lcommentsy, // (*
-        rcommentsy, // *)
+        minussy, // -        
         assignsy, // :=
         twopointssy, // ..
         //key words

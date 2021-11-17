@@ -37,23 +37,20 @@ namespace MyCompilerWPF
         private void Run_Click(object sender, RoutedEventArgs e)
         {
             textBoxOutput.Text = string.Empty;
-            СInputOutputModule ioModule = new СInputOutputModule(textBoxInput.Text);
-            char curLetter;
+            CLexicalAnalyzer lexer = new CLexicalAnalyzer(textBoxInput.Text);            
+            CToken curToken;
             try
             {
                 while (true)
-                {
-                    curLetter = ioModule.getNextLetter();
-                    if (curLetter == '?')
-                        ioModule.error("BAD SYMBOL ?");
-                    textBoxOutput.Text += curLetter;
+                {                    
+                    curToken = lexer.GetNextToken();
+                    textBoxOutput.Text += curToken.tokenType.ToString() + ' ';
                 }
             }
             catch (Exception exc)
             {
-                MessageBox.Show(exc.Message);
-                if (exc.Message.Contains("error"))
-                    textBoxOutput.Text = ioModule.errorOutput();
+                textBoxOutput.Text = "";
+                textBoxOutput.Text += exc.Message;
             }
         }
     }

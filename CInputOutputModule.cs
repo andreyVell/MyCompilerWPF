@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 using System.Collections.Generic;
 
 namespace MyCompilerWPF
@@ -17,14 +18,17 @@ namespace MyCompilerWPF
             curCharPos = 0;
             errorList = new List<CError>();
     }
-        public char getNextLetter()
+        public char GetNextLetter()
         {
             if (parsedInput.Length > curLinePos || buffer.Length > curCharPos)
             {
                 if (string.IsNullOrEmpty(buffer) || (curCharPos >= buffer.Length))
                     updateTheBuffer();
                 if (buffer != "")
-                    return buffer[curCharPos++];
+                {
+                    //MessageBox.Show(buffer[curCharPos].ToString());
+                    return buffer[curCharPos++]; 
+                }
                 else return ' ';
             }
             else
