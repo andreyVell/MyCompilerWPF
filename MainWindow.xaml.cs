@@ -37,19 +37,22 @@ namespace MyCompilerWPF
         private void Run_Click(object sender, RoutedEventArgs e)
         {
             textBoxOutput.Text = string.Empty;
-            CLexicalAnalyzer lexer = new CLexicalAnalyzer(textBoxInput.Text);            
+            CLexicalAnalyzer lexer = new CLexicalAnalyzer(textBoxInput.Text+" ");            
             CToken curToken;
             try
             {
                 while (true)
                 {                    
                     curToken = lexer.GetNextToken();
+                    if (curToken.tokenType == ETokenType.ttIdent)
+                        textBoxOutput.Text += curToken.identName;
                     textBoxOutput.Text += curToken.tokenType.ToString() + ' ';
                 }
             }
             catch (Exception exc)
             {
-                textBoxOutput.Text = "";
+                if (exc.Message.Contains("error"))
+                    textBoxOutput.Text = "";
                 textBoxOutput.Text += exc.Message;
             }
         }

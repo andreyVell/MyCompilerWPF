@@ -35,6 +35,10 @@ namespace MyCompilerWPF
         assignsy, // :=
         twopointssy, // ..
         //key words
+        intsy,
+        realsy,
+        charsy,
+        stringsy,
         ifsy,
         dosy,
         ofsy,
