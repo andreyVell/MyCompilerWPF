@@ -50,11 +50,14 @@ namespace MyCompilerWPF
                         needToReadNewLetter = false;
                         while ((curLetter >= '0' && curLetter <= '9') || curLetter == '.' || Char.ToLower(curLetter) == 'e' || ((curLetter == '+' || curLetter == '-') && Char.ToLower(curSymbol[curSymbol.Length - 1]) == 'e')) 
                         {
-                            curSymbol += curLetter;
+                            if (curLetter == '.')
+                                curSymbol += ',';
+                            else
+                                curSymbol += curLetter;
                             curLetter = ioModule.GetNextLetter();
                             needToReadNewLetter = false;
                         }
-                        if (curSymbol.Contains('.') || curSymbol.Contains('e') || curSymbol.Contains('E'))
+                        if (curSymbol.Contains(',') || curSymbol.Contains('e') || curSymbol.Contains('E'))
                         {
                             try
                             {
@@ -185,14 +188,16 @@ namespace MyCompilerWPF
                                     return new CToken(EOperator.packedsy);
                                 case "procedure":
                                     return new CToken(EOperator.proceduresy);
-                                case "int":
-                                    return new CToken(EOperator.intsy);
+                                case "integer":
+                                    return new CToken(EOperator.integersy);
                                 case "real":
                                     return new CToken(EOperator.realsy);
                                 case "char":
                                     return new CToken(EOperator.charsy);
-                                case "string":
+                                case "string":                                    
                                     return new CToken(EOperator.stringsy);
+                                case "boolean":
+                                    return new CToken(EOperator.booleansy);
                                 case "if":
                                     return new CToken(EOperator.ifsy);
                                 case "in":

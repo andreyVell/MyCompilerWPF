@@ -31,10 +31,11 @@
         assignsy, // :=
         twopointssy, // ..
         //key words
-        intsy,
+        integersy,
         realsy,
         charsy,
         stringsy,
+        booleansy,
         ifsy,
         dosy,
         ofsy,
