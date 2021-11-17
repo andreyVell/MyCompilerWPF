@@ -37,7 +37,7 @@ namespace MyCompilerWPF
         private void Run_Click(object sender, RoutedEventArgs e)
         {
             textBoxOutput.Text = string.Empty;
-            CLexicalAnalyzer lexer = new CLexicalAnalyzer(textBoxInput.Text+" ");            
+            CLexicalAnalyzer lexer = new CLexicalAnalyzer(textBoxInput.Text);            
             CToken curToken;
             try
             {

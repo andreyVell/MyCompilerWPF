@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Windows;
 using System.Collections.Generic;
 
 namespace MyCompilerWPF
@@ -24,20 +23,15 @@ namespace MyCompilerWPF
             {
                 if (string.IsNullOrEmpty(buffer) || (curCharPos >= buffer.Length))
                     updateTheBuffer();
-                if (buffer != "")
-                {
-                    //MessageBox.Show(buffer[curCharPos].ToString());
-                    return buffer[curCharPos++]; 
-                }
+                if (buffer != "")  
+                    return buffer[curCharPos++];
                 else return ' ';
             }
             else
-            {
                 if (errorList.Count > 0)
                     throw new Exception("Find some errors!");
                 else
                     throw new Exception("Done");
-            }
         }
         public void error(string name)//add new error to our errorList
         {

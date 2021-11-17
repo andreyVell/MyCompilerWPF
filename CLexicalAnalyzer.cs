@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Windows;
 
 namespace MyCompilerWPF
 {
@@ -9,7 +8,7 @@ namespace MyCompilerWPF
         private СInputOutputModule ioModule;
         private char curLetter;
         private string curSymbol = string.Empty;
-        private bool needToReadNewLetter=true;
+        private bool needToReadNewLetter = true;
         public CLexicalAnalyzer(string codeIn)
         {
             code = codeIn;
@@ -17,7 +16,6 @@ namespace MyCompilerWPF
         }
         public CToken GetNextToken()
         {
-            
             try
             {//get new Letter from iomodule and analyze it.......                
                 while (true)
@@ -49,6 +47,7 @@ namespace MyCompilerWPF
                     if (curLetter >= '0' && curLetter <= '9')
                     {
                         curLetter = ioModule.GetNextLetter();
+                        needToReadNewLetter = false;
                         while ((curLetter >= '0' && curLetter <= '9') || curLetter == '.' || Char.ToLower(curLetter) == 'e' || ((curLetter == '+' || curLetter == '-') && Char.ToLower(curSymbol[curSymbol.Length - 1]) == 'e')) 
                         {
                             curSymbol += curLetter;
@@ -87,28 +86,28 @@ namespace MyCompilerWPF
                             break;
                         case '\r':
                             break;
-                        case '+': 
-                                return new CToken(EOperator.plussy);
-                        case '/':                            
-                                return new CToken(EOperator.slashsy);                            
+                        case '+':
+                            return new CToken(EOperator.plussy);
+                        case '/':
+                            return new CToken(EOperator.slashsy);
                         case '=':
-                                return new CToken(EOperator.equalsy);
+                            return new CToken(EOperator.equalsy);
                         case ',':
-                                return new CToken(EOperator.commasy);
+                            return new CToken(EOperator.commasy);
                         case ';':
-                                return new CToken(EOperator.semicolonsy);
+                            return new CToken(EOperator.semicolonsy);
                         case '^':
-                                return new CToken(EOperator.arrowsy);
+                            return new CToken(EOperator.arrowsy);
                         case ')':
-                                return new CToken(EOperator.rightparsy);
+                            return new CToken(EOperator.rightparsy);
                         case '[':
-                                return new CToken(EOperator.lbracketsy);
+                            return new CToken(EOperator.lbracketsy);
                         case '*':
-                                return new CToken(EOperator.starsy);
+                            return new CToken(EOperator.starsy);
                         case ']':
-                                return new CToken(EOperator.rbracketsy);
+                            return new CToken(EOperator.rbracketsy);
                         case '-':
-                                return new CToken(EOperator.minussy);
+                            return new CToken(EOperator.minussy);
                         case '{':
                             while (ioModule.GetNextLetter() != '}') ;
                             break;
@@ -165,17 +164,19 @@ namespace MyCompilerWPF
                                 default:
                                     needToReadNewLetter = false;
                                     return new CToken(EOperator.latersy);
-                            }                        
-                        default:                            
-                            while ((curLetter >= 'A' && curLetter <= 'Z') || (curLetter >= 'a' && curLetter <= 'z') || (curLetter >= '0' && curLetter <= '9') || curLetter == '_')
+                            }
+                        default:
+                            while (true)
                             {
                                 curLetter = ioModule.GetNextLetter();
-                                curSymbol += curLetter;                                
-                                needToReadNewLetter = false;
+                                if ((curLetter >= 'A' && curLetter <= 'Z') || (curLetter >= 'a' && curLetter <= 'z') || (curLetter >= '0' && curLetter <= '9') || curLetter == '_')
+                                    curSymbol += curLetter;
+                                else
+                                {
+                                    needToReadNewLetter = false;
+                                    break;
+                                }
                             }
-                            if (curSymbol.Length>1)
-                                curSymbol=curSymbol.Substring(0, curSymbol.Length-1);
-                            MessageBox.Show(curSymbol+"|"+curSymbol.Length.ToString());
                             switch (curSymbol.ToLower())
                             {
                                 case "program":
@@ -257,8 +258,8 @@ namespace MyCompilerWPF
                                 case "until":
                                     return new CToken(EOperator.untilsy);
                                 default:
-                                    if (curSymbol.Length == 1)
-                                    { 
+                                    if (curSymbol.Length == 1 && !((curSymbol[0] >= 'A' && curSymbol[0] <= 'Z') || (curSymbol[0] >= 'a' && curSymbol[0] <= 'z') || curSymbol[0] == '_'))
+                                    {
                                         ioModule.error("Unexpected symbol!");
                                         break;
                                     }
@@ -266,13 +267,13 @@ namespace MyCompilerWPF
                                         return new CToken(curSymbol, 1);
                             }
                             break;
-                    }                    
+                    }
                 }
             }
             catch (Exception exc)
-            {                
-                throw new Exception(((exc.Message)+"\n"+(ioModule.errorOutput())));
+            {
+                throw new Exception(exc.Message+"\n"+ioModule.errorOutput());
             }
-        }        
+        }
     }
 }
