@@ -7,10 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\mainicon.ico" />
     <None Remove="Resources\run.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Resources\mainicon.ico" />
     <Resource Include="Resources\run.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>

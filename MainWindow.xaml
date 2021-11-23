@@ -7,7 +7,10 @@
         Title="Pascal compiler"
         Height="600" 
         Width="800"
-        SizeChanged="Size_Changed">
+        SizeChanged="Size_Changed"
+        KeyDown="TextBox_KeyDown"
+        Icon="./Resources\mainicon.ico">
+    
     <Grid>
         <Menu Height="21" VerticalAlignment="Top" FontSize="15">
             <MenuItem Header="File">
@@ -17,7 +20,7 @@
                 <Separator />
                 <MenuItem Header="Exit" ></MenuItem>
             </MenuItem>
-            <MenuItem Header="Run" Click="Run_Click">
+            <MenuItem Header="Run" Click="Run_Click" ToolTip="F5 | Начать отладку" >
                 <MenuItem.Icon>
                     <Image Source="./Resources\run.png"></Image>
                 </MenuItem.Icon>
