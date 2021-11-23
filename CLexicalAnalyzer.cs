@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace MyCompilerWPF
 {
@@ -191,8 +192,6 @@ namespace MyCompilerWPF
                                     return new CToken(true);
                                 case "false":
                                     return new CToken(false);
-                                case "packed":
-                                    return new CToken(EOperator.packedsy);
                                 case "integer":
                                     return new CToken(EOperator.integersy);
                                 case "real":
@@ -211,8 +210,6 @@ namespace MyCompilerWPF
                                     return new CToken(EOperator.dosy);
                                 case "div":
                                     return new CToken(EOperator.divsy);
-                                case "downto":
-                                    return new CToken(EOperator.downtosy);
                                 case "of":
                                     return new CToken(EOperator.ofsy);
                                 case "or":
@@ -245,16 +242,16 @@ namespace MyCompilerWPF
                                     return new CToken(EOperator.whilesy);
                                 case "begin":
                                     return new CToken(EOperator.beginsy);
-                                case "label":
-                                    return new CToken(EOperator.labelsy);
+                                //case "type":
+                                //    return new CToken(EOperator.typesy);
                                 default:
-                                    if (curSymbol.Length == 1 && !((curSymbol[0] >= 'A' && curSymbol[0] <= 'Z') || (curSymbol[0] >= 'a' && curSymbol[0] <= 'z') || curSymbol[0] == '_'))
+                                    if (curSymbol.All(c => Char.IsLetterOrDigit(c) || c == '_'))
+                                        return new CToken(curSymbol, 1);
+                                    else
                                     {
                                         ioModule.error("Unexpected symbol!");
                                         break;
                                     }
-                                    else
-                                        return new CToken(curSymbol, 1);
                             }
                             break;
                     }
