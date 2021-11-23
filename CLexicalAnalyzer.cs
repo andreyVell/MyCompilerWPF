@@ -3,16 +3,14 @@
 namespace MyCompilerWPF
 {
     class CLexicalAnalyzer
-    {
-        private string code = string.Empty;
+    {        
         private СInputOutputModule ioModule;
         private char curLetter;
         private string curSymbol = string.Empty;
         private bool needToReadNewLetter = true;
-        public CLexicalAnalyzer(string codeIn)
-        {
-            code = codeIn;
-            ioModule = new СInputOutputModule(code);
+        public CLexicalAnalyzer(СInputOutputModule io)
+        {            
+            ioModule = io;
         }
         public CToken GetNextToken()
         {
@@ -30,7 +28,7 @@ namespace MyCompilerWPF
                         curSymbol += curLetter;
                     needToReadNewLetter = true;
                     //try to pasrse to ttValue
-                    if (curLetter == Convert.ToChar("'")) //string or char
+                    if (curLetter == Convert.ToChar("'")) 
                     {
                         curSymbol = string.Empty;
                         while (true)
@@ -43,44 +41,49 @@ namespace MyCompilerWPF
                                     return new CToken(curSymbol);
                             curSymbol += curLetter;
                         }
-                    }
+                    }//string or char
                     if (curLetter >= '0' && curLetter <= '9')
                     {
                         curLetter = ioModule.GetNextLetter();
                         needToReadNewLetter = false;
-                        while ((curLetter >= '0' && curLetter <= '9') || curLetter == '.' || Char.ToLower(curLetter) == 'e' || ((curLetter == '+' || curLetter == '-') && Char.ToLower(curSymbol[curSymbol.Length - 1]) == 'e')) 
-                        {
-                            if (curLetter == '.')
-                                curSymbol += ',';
-                            else
-                                curSymbol += curLetter;
-                            curLetter = ioModule.GetNextLetter();
-                            needToReadNewLetter = false;
-                        }
-                        if (curSymbol.Contains(',') || curSymbol.Contains('e') || curSymbol.Contains('E'))
-                        {
-                            try
-                            {
-                                return new CToken(double.Parse(curSymbol));
-                            }
-                            catch (Exception exc)
-                            {
-                                ioModule.error(exc.Message);
-                            }
-                        }
+                        if (curLetter != 'e' && Char.ToLower(curLetter) >= 'a' && Char.ToLower(curLetter) <= 'z')
+                            ioModule.error("Invalid identifier name");
                         else
                         {
-                            try
+                            while ((curLetter >= '0' && curLetter <= '9') || curLetter == '.' || Char.ToLower(curLetter) == 'e' || ((curLetter == '+' || curLetter == '-') && Char.ToLower(curSymbol[curSymbol.Length - 1]) == 'e'))
                             {
-                                return new CToken(int.Parse(curSymbol));
+                                if (curLetter == '.')
+                                    curSymbol += ',';
+                                else
+                                    curSymbol += curLetter;
+                                curLetter = ioModule.GetNextLetter();
+                                needToReadNewLetter = false;
                             }
-                            catch (Exception exc)
+                            if (curSymbol.Contains(',') || curSymbol.Contains('e') || curSymbol.Contains('E'))
                             {
-                                ioModule.error(exc.Message);
+                                try
+                                {
+                                    return new CToken(double.Parse(curSymbol));
+                                }
+                                catch (Exception exc)
+                                {
+                                    ioModule.error(exc.Message);
+                                }
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    return new CToken(int.Parse(curSymbol));
+                                }
+                                catch (Exception exc)
+                                {
+                                    ioModule.error(exc.Message);
+                                }
                             }
                         }
-                    }
-                    //try to parse to ttOper all that remains is ttIdent (or error)
+                    } //integer or real
+                    //try to parse to ttOper or Boolean, all that remains is ttIdent (or error)
                     switch (Char.ToLower(curLetter))
                     {
                         case ' ':

@@ -37,24 +37,9 @@ namespace MyCompilerWPF
         private void Run_Click(object sender, RoutedEventArgs e)
         {
             textBoxOutput.Text = string.Empty;
-            CLexicalAnalyzer lexer = new CLexicalAnalyzer(textBoxInput.Text+" ");            
-            CToken curToken;
-            try
-            {
-                while (true)
-                {                    
-                    curToken = lexer.GetNextToken();
-                    if (curToken.tokenType == ETokenType.ttIdent)
-                        textBoxOutput.Text += curToken.identName;
-                    textBoxOutput.Text += curToken.tokenType.ToString() + ' ';
-                }
-            }
-            catch (Exception exc)
-            {
-                if (exc.Message.Contains("error"))
-                    textBoxOutput.Text = "";
-                textBoxOutput.Text += exc.Message;
-            }
+            PascalCompiler compiler = new PascalCompiler();
+            compiler.Compilate(textBoxInput.Text);
+            textBoxOutput.Text = compiler.GetResult();            
         }
     }
     
