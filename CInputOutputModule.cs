@@ -41,13 +41,14 @@ namespace MyCompilerWPF
         public string errorOutput()//get our code with marked errors
         {
             string errorsOut=string.Empty;
-            for (int i = 0; i < parsedInput.Length; i++)
-            {
-                errorsOut += parsedInput[i];
-                foreach (CError curError in errorList)
-                    if (curError.lineContainError(i))
-                        errorsOut += curError.getErrorInfo();
-            }
+            if (errorList.Count > 0)
+                for (int i = 0; i < parsedInput.Length; i++)
+                {
+                    errorsOut += parsedInput[i];
+                    foreach (CError curError in errorList)
+                        if (curError.lineContainError(i))
+                            errorsOut += curError.getErrorInfo();
+                }
             return errorsOut;
         }
         private void updateTheBuffer() //start to analyse new line
