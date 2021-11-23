@@ -46,38 +46,28 @@
         varsy,
         divsy,
         andsy,
-        notsy,
-        forsy,
+        notsy,        
         modsy,
         nilsy,
         setsy,
         thensy,
-        elsesy,
-        casesy,
+        elsesy,        
         filesy,
-        gotosy,
-        typesy,
-        withsy,
+        gotosy,  
         beginsy,
-        whilesy,
-        arraysy,
-        constsy,
-        labelsy,
-        untilsy,
+        whilesy, 
+        labelsy,        
         downtosy,
-        packedsy,
-        recordsy,
-        repeatsy,
+        packedsy,       
         programsy,
-        functionsy,
-        proceduresy,
     }
     enum EValType
     {
         vtInt = 0x1,
         vtReal = 0x2,
         vtString = 0x4,
-        vtChar = 0x8
+        vtChar = 0x8,
+        vtBoolean
     }
     class CToken    
     {        
@@ -89,6 +79,7 @@
         public double dvalue { get; private set; }
         public string svalue { get; private set; }
         public char cvalue { get; private set; }
+        public bool bvalue { get; private set; }
         public CToken(int value) //ttValue int
         {
             ivalue = value;
@@ -112,6 +103,12 @@
             svalue = value;
             tokenType = ETokenType.ttValue;
             valType = EValType.vtString;
+        }
+        public CToken(bool value)
+        {
+            bvalue = value;
+            tokenType = ETokenType.ttValue;
+            valType = EValType.vtBoolean;
         }
         public CToken(EOperator op) //ttOper
         {

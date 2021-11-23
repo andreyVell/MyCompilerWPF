@@ -184,10 +184,12 @@ namespace MyCompilerWPF
                             {
                                 case "program":
                                     return new CToken(EOperator.programsy);
+                                case "true":
+                                    return new CToken(true);
+                                case "false":
+                                    return new CToken(false);
                                 case "packed":
                                     return new CToken(EOperator.packedsy);
-                                case "procedure":
-                                    return new CToken(EOperator.proceduresy);
                                 case "integer":
                                     return new CToken(EOperator.integersy);
                                 case "real":
@@ -214,8 +216,6 @@ namespace MyCompilerWPF
                                     return new CToken(EOperator.orsy);
                                 case "to":
                                     return new CToken(EOperator.tosy);
-                                case "type":
-                                    return new CToken(EOperator.typesy);
                                 case "then":
                                     return new CToken(EOperator.thensy);
                                 case "end":
@@ -226,42 +226,24 @@ namespace MyCompilerWPF
                                     return new CToken(EOperator.varsy);
                                 case "and":
                                     return new CToken(EOperator.andsy);
-                                case "array":
-                                    return new CToken(EOperator.arraysy);
                                 case "not":
                                     return new CToken(EOperator.notsy);
                                 case "nil":
                                     return new CToken(EOperator.nilsy);
-                                case "for":
-                                    return new CToken(EOperator.forsy);
-                                case "function":
-                                    return new CToken(EOperator.functionsy);
                                 case "file":
                                     return new CToken(EOperator.filesy);
                                 case "mod":
                                     return new CToken(EOperator.modsy);
                                 case "set":
                                     return new CToken(EOperator.setsy);
-                                case "repeat":
-                                    return new CToken(EOperator.repeatsy);
-                                case "record":
-                                    return new CToken(EOperator.recordsy);
-                                case "case":
-                                    return new CToken(EOperator.casesy);
-                                case "const":
-                                    return new CToken(EOperator.constsy);
                                 case "goto":
                                     return new CToken(EOperator.gotosy);
-                                case "with":
-                                    return new CToken(EOperator.withsy);
                                 case "while":
                                     return new CToken(EOperator.whilesy);
                                 case "begin":
                                     return new CToken(EOperator.beginsy);
                                 case "label":
                                     return new CToken(EOperator.labelsy);
-                                case "until":
-                                    return new CToken(EOperator.untilsy);
                                 default:
                                     if (curSymbol.Length == 1 && !((curSymbol[0] >= 'A' && curSymbol[0] <= 'Z') || (curSymbol[0] >= 'a' && curSymbol[0] <= 'z') || curSymbol[0] == '_'))
                                     {
