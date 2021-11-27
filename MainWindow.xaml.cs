@@ -45,5 +45,15 @@ namespace MyCompilerWPF
             if (e.Key == Key.F5)
                 Run_Click(sender, e);
         }
+        private void ZoomIn_Click(object sender, RoutedEventArgs e)
+        {
+            textBoxInput.FontSize += 3;
+            textBoxOutput.FontSize += 3;
+        }
+        private void ZoomOut_Click(object sender, RoutedEventArgs e)
+        {
+            textBoxInput.FontSize -= 3;
+            textBoxOutput.FontSize -= 3;
+        }
     }
 }

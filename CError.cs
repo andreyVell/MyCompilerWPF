@@ -13,7 +13,7 @@
         }
         public string getErrorInfo()
         {
-            return $"Char number: {charNumber}; Error: {errorContext}\n";
+            return $"Char number: {charNumber}; ERROR: {errorContext}\n";
         }
         public bool lineContainError(int i)
         {

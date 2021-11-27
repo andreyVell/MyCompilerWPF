@@ -5,11 +5,11 @@ namespace MyCompilerWPF
 {
     class CLexicalAnalyzer
     {        
-        private СInputOutputModule ioModule;
+        private CInputOutputModule ioModule;
         private char curLetter;
         private string curSymbol = string.Empty;
         private bool needToReadNewLetter = true;
-        public CLexicalAnalyzer(СInputOutputModule io)
+        public CLexicalAnalyzer(CInputOutputModule io)
         {            
             ioModule = io;
         }
@@ -74,7 +74,7 @@ namespace MyCompilerWPF
                             else
                             {
                                 try
-                                {
+                                {     
                                     return new CToken(int.Parse(curSymbol));
                                 }
                                 catch (Exception exc)
@@ -242,8 +242,6 @@ namespace MyCompilerWPF
                                     return new CToken(EOperator.whilesy);
                                 case "begin":
                                     return new CToken(EOperator.beginsy);
-                                //case "type":
-                                //    return new CToken(EOperator.typesy);
                                 default:
                                     if (curSymbol.All(c => Char.IsLetterOrDigit(c) || c == '_'))
                                         return new CToken(curSymbol, 1);
@@ -259,7 +257,7 @@ namespace MyCompilerWPF
             }
             catch (Exception exc)
             {
-                throw new Exception(exc.Message+"\n"+ioModule.errorOutput());
+                throw new Exception(exc.Message+"\n");
             }
         }
     }

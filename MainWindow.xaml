@@ -25,6 +25,10 @@
                     <Image Source="./Resources\run.png"></Image>
                 </MenuItem.Icon>
             </MenuItem>
+            <MenuItem Header="View">
+                <MenuItem Header="Zoom in" Click="ZoomIn_Click" StaysOpenOnClick="True"></MenuItem>
+                <MenuItem Header="Zoom out" Click="ZoomOut_Click" StaysOpenOnClick="True"></MenuItem>
+            </MenuItem>
         </Menu>
         <Label Content="Program:" HorizontalAlignment="Left" Margin="0,26,0,0" VerticalAlignment="Top" />
         <TextBox x:Name="textBoxInput" 
@@ -38,7 +42,7 @@
                  AcceptsReturn="True"                 
                  Margin="10,345,10,5" 
                  IsReadOnly="True"
-                 Text=""                    
+                 Text=""      
                  TextWrapping="Wrap"/>
         <Label x:Name ="labelResult" Content="Output:" HorizontalAlignment="Left" Margin="10,320,0,0" VerticalAlignment="Top" Height="27"/>
     </Grid>

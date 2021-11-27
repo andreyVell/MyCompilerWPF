@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 namespace MyCompilerWPF
 {
-    class СInputOutputModule
+    class CInputOutputModule
     {
         private List<CError> errorList;
         private string buffer = string.Empty;
         private ushort curLinePos;
         private ushort curCharPos;
         private string[] parsedInput;
-        public СInputOutputModule(string code)
+        public CInputOutputModule(string code)
         {
             parsedInput = code.Split('\n');
             curLinePos = 0;

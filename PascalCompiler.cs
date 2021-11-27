@@ -6,23 +6,29 @@ namespace MyCompilerWPF
     {
         private string input = string.Empty;
         private string output = string.Empty;
-        private СInputOutputModule ioModule;
-        private CLexicalAnalyzer lexer;        
+        private CInputOutputModule ioModule;
+        private CLexicalAnalyzer lexer;
+        private CSyntacticalAnalyzer synt;
         public void Compilate(string pascalCode)
         {
             input = pascalCode;
-            ioModule = new СInputOutputModule(input + " ");
+            ioModule = new CInputOutputModule(input + " ");
             lexer = new CLexicalAnalyzer(ioModule);
-            CToken curToken;
+            synt = new CSyntacticalAnalyzer(ioModule, lexer);
+            //CToken curToken;
             try
             {
-                while (true)
-                {
-                    curToken = lexer.GetNextToken();
-                    if (curToken.tokenType == ETokenType.ttIdent)
-                        output += curToken.identName;
-                    output += curToken.tokenType.ToString() + ' ';
-                }
+                //while (true)
+                //{
+                //    curToken = lexer.GetNextToken();
+                //    if (curToken.tokenType == ETokenType.ttIdent)
+                //        output += curToken.identName;
+                //    if (curToken.tokenType == ETokenType.ttValue)
+                //        output += curToken.GetValue().ToString();
+                //    output += curToken.tokenType.ToString() + ' ';
+                //}
+                synt.Program();
+                //output += ioModule.errorOutput();
             }
             catch (Exception exc)
             {
