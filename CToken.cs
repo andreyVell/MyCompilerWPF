@@ -9,6 +9,7 @@
     enum EOperator
     {
         //Operators
+        tofixsomebugs, //dont know)))
         starsy, // *
         slashsy, // /
         equalsy, // =
@@ -78,7 +79,7 @@
         public char cvalue { get; private set; }
         public bool bvalue { get; private set; }
         public CToken(int value) //ttValue int
-        {
+        {            
             ivalue = value;
             tokenType = ETokenType.ttValue;
             valType = EValType.vtInt;

@@ -84,7 +84,24 @@ namespace MyCompilerWPF
                             }
                         }
                     } //integer or real
-                    //try to parse to ttOper or Boolean, all that remains is ttIdent (or error)
+                    //try to parse several consecutive signs
+                    if (curLetter == '+' || curLetter=='-')
+                    {
+                        bool minus = false;
+                        if (curLetter == '-')
+                            minus = !minus;
+                        curLetter = ioModule.GetNextLetter();
+                        needToReadNewLetter = false;
+                        while (curLetter == '+' || curLetter == '-')
+                        {
+                            if (curLetter == '-')
+                                minus = !minus;
+                            curLetter = ioModule.GetNextLetter();
+                            needToReadNewLetter = false;
+                        }
+                        return minus ? new CToken(EOperator.minussy): new CToken(EOperator.plussy);
+                    }
+                    //try to parse to ttOper or Boolean, all that remains is ttIdent (or error)                    
                     switch (Char.ToLower(curLetter))
                     {
                         case ' ':
@@ -257,7 +274,7 @@ namespace MyCompilerWPF
             }
             catch (Exception exc)
             {
-                throw new Exception(exc.Message+"\n");
+                throw new Exception();
             }
         }
     }

@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Windows;
 
 namespace MyCompilerWPF
 {
@@ -34,8 +33,10 @@ namespace MyCompilerWPF
                 }
             }
             catch (Exception exc)
-            {
-                throw new Exception(exc.Message + "\n" + ioModule.errorOutput());
+            {                
+                if (expectedToken.operation == EOperator.pointsy)
+                    ioModule.error("Expected " + expectedToken.GetTokenContent());
+                throw new Exception(ioModule.errorOutput());
             }
         }
         private bool Accept(ETokenType expectedType)
@@ -61,69 +62,8 @@ namespace MyCompilerWPF
                 throw new Exception(exc.Message + "\n" + ioModule.errorOutput());
             }
         }
-        public void Program() //<программа>
+        private void GetNextTokenManualy()
         {
-            Accept(new CToken(EOperator.programsy));
-            Name();
-            Accept(new CToken(EOperator.semicolonsy));
-            Block();
-            Accept(new CToken(EOperator.pointsy));
-            try
-            { lexer.GetNextToken(); }
-            catch (Exception exc)
-            {
-                throw new Exception(exc.Message + "\n" + ioModule.errorOutput());
-            }
-        }
-        private void Name() //<имя>
-        {
-            Accept(ETokenType.ttIdent);
-        }
-        private void Block() //<блок>
-        {
-            VariableSection();
-            OperatorsSection();
-        }
-        private void VariableSection() //<раздел переменных>
-        {
-            if (Accept(new CToken(EOperator.varsy)))
-            {
-                DescSameVariables();
-                Accept(new CToken(EOperator.semicolonsy));
-                if (needToNextToken)
-                {
-                    try
-                    {
-                        curToken = lexer.GetNextToken();
-                        needToNextToken = false;
-                    }
-                    catch (Exception exc)
-                    {
-                        throw new Exception(exc.Message + "\n" + ioModule.errorOutput());
-                    }
-                }
-                while (curToken.tokenType == (ETokenType.ttIdent)) 
-                {
-                    DescSameVariables();
-                    Accept(new CToken(EOperator.semicolonsy));
-                    if (needToNextToken)
-                    {
-                        try
-                        {
-                            curToken = lexer.GetNextToken();
-                            needToNextToken = false;
-                        }
-                        catch (Exception exc)
-                        {
-                            throw new Exception(exc.Message + "\n" + ioModule.errorOutput());
-                        }
-                    }
-                }
-            }
-        }
-        private void DescSameVariables() //<описание однотипных переменных>
-        {
-            Name();
             if (needToNextToken)
             {
                 try
@@ -136,21 +76,51 @@ namespace MyCompilerWPF
                     throw new Exception(exc.Message + "\n" + ioModule.errorOutput());
                 }
             }
-            while (curToken == (new CToken(EOperator.commasy)))
-            {
-                Name();
-                if (needToNextToken)
+        }
+        public void Program() //<программа>
+        {            
+            Accept(new CToken(EOperator.programsy));
+            Name();
+            Accept(new CToken(EOperator.semicolonsy));
+            Block();
+            Accept(new CToken(EOperator.pointsy));            
+            throw new Exception(ioModule.errorOutput());
+        }
+        private void Name() //<имя>
+        {
+            Accept(ETokenType.ttIdent);
+        }
+        private void Block() //<блок>
+        {
+            VariableSection();
+            OperatorsSection();
+        }
+        private void VariableSection() //<раздел переменных>
+        {
+            GetNextTokenManualy();
+            if (curToken.operation == EOperator.varsy)
+                if (Accept(new CToken(EOperator.varsy)))
                 {
-                    try
+                    DescSameVariables();
+                    Accept(new CToken(EOperator.semicolonsy));
+                    GetNextTokenManualy();
+                    while (curToken.tokenType == (ETokenType.ttIdent)) 
                     {
-                        curToken = lexer.GetNextToken();
-                        needToNextToken = false;
-                    }
-                    catch (Exception exc)
-                    {
-                        throw new Exception(exc.Message + "\n" + ioModule.errorOutput());
+                        DescSameVariables();
+                        Accept(new CToken(EOperator.semicolonsy));
+                        GetNextTokenManualy();
                     }
                 }
+        }
+        private void DescSameVariables() //<описание однотипных переменных>
+        {
+            Name();
+            GetNextTokenManualy();
+            while (curToken == (new CToken(EOperator.commasy)))
+            {
+                Accept(new CToken(EOperator.commasy));
+                Name();
+                GetNextTokenManualy();
             }
             Accept(new CToken(EOperator.colonsy));
             Type();
@@ -165,18 +135,7 @@ namespace MyCompilerWPF
         }
         private void TypeName() //<имя типа>
         {
-            if (needToNextToken)
-            {
-                try
-                {
-                    curToken = lexer.GetNextToken();
-                    needToNextToken = false;
-                }
-                catch (Exception exc)
-                {
-                    throw new Exception(exc.Message + "\n" + ioModule.errorOutput());
-                }
-            }
+            GetNextTokenManualy();
             if (curToken.operation==EOperator.integersy)
             {
                 Accept(new CToken(EOperator.integersy));
@@ -202,6 +161,7 @@ namespace MyCompilerWPF
                 Accept(new CToken(EOperator.booleansy));
                 return;
             }
+            ioModule.error("Expected for type name");
         }
         private void OperatorsSection() //<раздел операторов>
         {
@@ -211,34 +171,13 @@ namespace MyCompilerWPF
         {
             Accept(new CToken(EOperator.beginsy));
             Operator();
-            if (needToNextToken)
+            GetNextTokenManualy();
+            while (curToken == (new CToken(EOperator.semicolonsy))) 
             {
-                try
-                {
-                    curToken = lexer.GetNextToken();
-                    needToNextToken = false;
-                }
-                catch (Exception exc)
-                {
-                    throw new Exception(exc.Message + "\n" + ioModule.errorOutput());
-                }
-            }
-            while (curToken ==(new CToken(EOperator.semicolonsy)))
-            {
+                Accept(new CToken(EOperator.semicolonsy));
                 Operator();
-                if (needToNextToken)
-                {
-                    try
-                    {
-                        curToken = lexer.GetNextToken();
-                        needToNextToken = false;
-                    }
-                    catch (Exception exc)
-                    {
-                        throw new Exception(exc.Message + "\n" + ioModule.errorOutput());
-                    }
-                }
-            }
+                GetNextTokenManualy();
+            }            
             Accept(new CToken(EOperator.endsy));
         }
         private void Operator()// <оператор>
@@ -247,18 +186,7 @@ namespace MyCompilerWPF
         }
         private void UnlabeledOperator()// <непомеченный оператор> 
         {
-            if (needToNextToken)
-            {
-                try
-                {
-                    curToken = lexer.GetNextToken();
-                    needToNextToken = false;
-                }
-                catch (Exception exc)
-                {
-                    throw new Exception(exc.Message + "\n" + ioModule.errorOutput());
-                }
-            }
+            GetNextTokenManualy();
             if (curToken.tokenType == ETokenType.ttIdent)
             { AssignOperator();return; }
             if (curToken == (new CToken(EOperator.beginsy)))
@@ -267,6 +195,7 @@ namespace MyCompilerWPF
             { ConditionalOperator(); return; }
             if (curToken == (new CToken(EOperator.whilesy)))
             { PreconditionLoop(); return; }
+            return;
         }
         private void AssignOperator()// <оператор присваивания>
         {
@@ -289,18 +218,7 @@ namespace MyCompilerWPF
         private void Expression()// <выражение> 
         {
             SimpleExpression();
-            if (needToNextToken)
-            {
-                try
-                {
-                    curToken = lexer.GetNextToken();
-                    needToNextToken = false;
-                }
-                catch (Exception exc)
-                {
-                    throw new Exception(exc.Message + "\n" + ioModule.errorOutput());
-                }
-            }
+            GetNextTokenManualy();
             if (curToken==(new CToken(EOperator.equalsy)) || curToken == (new CToken(EOperator.latergreatersy)) || curToken == (new CToken(EOperator.latersy)) || curToken == (new CToken(EOperator.laterequalsy)) || curToken == (new CToken(EOperator.greaterequalsy)) || curToken == (new CToken(EOperator.greatersy)))
             {                
                 RelationshipOperation();
@@ -308,66 +226,20 @@ namespace MyCompilerWPF
             }
         }
         private void SimpleExpression()// <простое выражение> 
-        {
-            //if (needToNextToken)
-            //{
-            //    try
-            //    {
-            //        curToken = lexer.GetNextToken();
-            //        needToNextToken = false;
-            //    }
-            //    catch (Exception exc)
-            //    {
-            //        throw new Exception(exc.Message + "\n" + ioModule.errorOutput());
-            //    }
-            //}
-            //if (curToken.)
+        {            
             Sign();
             Term();
-            if (needToNextToken)
-            {
-                try
-                {
-                    curToken = lexer.GetNextToken();
-                    needToNextToken = false;
-                }
-                catch (Exception exc)
-                {
-                    throw new Exception(exc.Message + "\n" + ioModule.errorOutput());
-                }
-            }
+            GetNextTokenManualy();
             while (curToken == (new CToken(EOperator.plussy)) || curToken == (new CToken(EOperator.minussy)) || curToken == (new CToken(EOperator.orsy)))
             {                
                 AdditiveOperation();
                 Term();
-                if (needToNextToken)
-                {
-                    try
-                    {
-                        curToken = lexer.GetNextToken();
-                        needToNextToken = false;
-                    }
-                    catch (Exception exc)
-                    {
-                        throw new Exception(exc.Message + "\n" + ioModule.errorOutput());
-                    }
-                }
+                GetNextTokenManualy();
             }
         }
         private void AdditiveOperation()// <аддитивная операция>
         {
-            if (needToNextToken)
-            {
-                try
-                {
-                    curToken = lexer.GetNextToken();
-                    needToNextToken = false;
-                }
-                catch (Exception exc)
-                {
-                    throw new Exception(exc.Message + "\n" + ioModule.errorOutput());
-                }
-            }
+            GetNextTokenManualy();
             if (curToken.operation == EOperator.plussy)
             {
                 Accept(new CToken(EOperator.plussy));
@@ -388,18 +260,7 @@ namespace MyCompilerWPF
         }
         private void RelationshipOperation()// <операция отношения>
         {
-            if (needToNextToken)
-            {
-                try
-                {
-                    curToken = lexer.GetNextToken();
-                    needToNextToken = false;
-                }
-                catch (Exception exc)
-                {
-                    throw new Exception(exc.Message + "\n" + ioModule.errorOutput());
-                }
-            }
+            GetNextTokenManualy();
             if (curToken.operation == EOperator.equalsy)
             { Accept(new CToken(EOperator.equalsy)); return; }
             if (curToken.operation == EOperator.latergreatersy)
@@ -415,30 +276,17 @@ namespace MyCompilerWPF
             else
                 ioModule.error("Expected comparison operation");
         }
-        private void Term()// <выражение>
+        private void Term()// <слагаемое>
         {
             Factor();
-            while(MultiplicativeOperation())
-            {
-                Factor();
-            }
+            while (MultiplicativeOperation())            
+                Factor();            
         }
         private bool MultiplicativeOperation()// <мультипликативная операция>
         {
-            if (needToNextToken)
-            {
-                try
-                {
-                    curToken = lexer.GetNextToken();
-                    needToNextToken = false;
-                }
-                catch (Exception exc)
-                {
-                    throw new Exception(exc.Message + "\n" + ioModule.errorOutput());
-                }
-            }
-            if (curToken.operation == EOperator.starsy)
-                return Accept(new CToken(EOperator.starsy));
+            GetNextTokenManualy();
+            if (curToken.operation == EOperator.starsy)                            
+                return Accept(new CToken(EOperator.starsy)); 
             if (curToken.operation == EOperator.slashsy)
                 return Accept(new CToken(EOperator.slashsy));
             if (curToken.operation == EOperator.divsy)
@@ -451,38 +299,16 @@ namespace MyCompilerWPF
         }
         private void Sign() //<знак>
         {
-            if (needToNextToken)
-            {
-                try
-                {
-                    curToken = lexer.GetNextToken();
-                    needToNextToken = false;
-                }
-                catch (Exception exc)
-                {
-                    throw new Exception(exc.Message + "\n" + ioModule.errorOutput());
-                }
-            }
+            GetNextTokenManualy();
             if (curToken.operation == EOperator.plussy)
             { Accept(new CToken(EOperator.plussy));return; }
             if (curToken.operation == EOperator.minussy)
             { Accept(new CToken(EOperator.minussy)); return; }
-            ioModule.error("Sign expected");
+            //ioModule.error("Sign expected");
         }
         private void Factor()// <множитель>
         {
-            if (needToNextToken)
-            {
-                try
-                {
-                    curToken = lexer.GetNextToken();
-                    needToNextToken = false;
-                }
-                catch (Exception exc)
-                {
-                    throw new Exception(exc.Message + "\n" + ioModule.errorOutput());
-                }
-            }
+            GetNextTokenManualy();
             if (curToken.tokenType == ETokenType.ttIdent)
             { Variable(); return; }
             if (curToken.tokenType == ETokenType.ttValue)
@@ -495,6 +321,7 @@ namespace MyCompilerWPF
             }            
             if (curToken.operation == EOperator.leftparsy)
             {
+                Accept(new CToken(EOperator.leftparsy));
                 Expression();
                 Accept(new CToken(EOperator.rightparsy));
                 return;
@@ -508,26 +335,15 @@ namespace MyCompilerWPF
             Expression();
             Accept(new CToken(EOperator.thensy));
             Operator();
-            if (needToNextToken)
-            {
-                try
-                {
-                    curToken = lexer.GetNextToken();
-                    needToNextToken = false;
-                }
-                catch (Exception exc)
-                {
-                    throw new Exception(exc.Message + "\n" + ioModule.errorOutput());
-                }
-            }
+            GetNextTokenManualy();
             if (curToken.operation == EOperator.elsesy)
             { Accept(new CToken(EOperator.elsesy)); Operator(); }
         }
         private void PreconditionLoop()// <цикл с предусловием>
-        {
-            Accept(new CToken(EOperator.whilesy));
-            Expression();
-            Accept(new CToken(EOperator.dosy));
+        {            
+            Accept(new CToken(EOperator.whilesy));            
+            Expression();            
+            Accept(new CToken(EOperator.dosy));            
             Operator();
         }
     }

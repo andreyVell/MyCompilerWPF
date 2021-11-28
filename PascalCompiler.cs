@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Windows;
+using System.Threading.Tasks;
 
 namespace MyCompilerWPF
 {
@@ -9,31 +11,22 @@ namespace MyCompilerWPF
         private CInputOutputModule ioModule;
         private CLexicalAnalyzer lexer;
         private CSyntacticalAnalyzer synt;
-        public void Compilate(string pascalCode)
+        async public void Compilate(string pascalCode)
         {
             input = pascalCode;
             ioModule = new CInputOutputModule(input + " ");
             lexer = new CLexicalAnalyzer(ioModule);
             synt = new CSyntacticalAnalyzer(ioModule, lexer);
-            //CToken curToken;
             try
             {
-                //while (true)
-                //{
-                //    curToken = lexer.GetNextToken();
-                //    if (curToken.tokenType == ETokenType.ttIdent)
-                //        output += curToken.identName;
-                //    if (curToken.tokenType == ETokenType.ttValue)
-                //        output += curToken.GetValue().ToString();
-                //    output += curToken.tokenType.ToString() + ' ';
-                //}
-                synt.Program();
-                //output += ioModule.errorOutput();
+                ////Task task = Task.Run(() => { synt.Program(); });
+                ////await task;
+
+                synt.Program();                
             }
             catch (Exception exc)
             {
-                if (exc.Message.Contains("error"))
-                    output = "";
+                output = "";
                 output += exc.Message;
             }
         }

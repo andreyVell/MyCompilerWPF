@@ -29,9 +29,9 @@ namespace MyCompilerWPF
             }
             else
                 if (errorList.Count > 0)
-                    throw new Exception("Find some errors!");
+                    throw new Exception();
                 else
-                    throw new Exception("Done");
+                    throw new Exception();
         }
         public void error(string name)//add new error to our errorList
         {
@@ -41,6 +41,10 @@ namespace MyCompilerWPF
         public string errorOutput()//get our code with marked errors
         {
             string errorsOut=string.Empty;
+            if (errorList.Count > 0)
+                errorsOut+="Find some errors!\n";
+            else
+                errorsOut += "Done, without errors!\n";
             if (errorList.Count > 0)
                 for (int i = 0; i < parsedInput.Length; i++)
                 {
