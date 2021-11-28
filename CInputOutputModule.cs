@@ -42,13 +42,13 @@ namespace MyCompilerWPF
         {
             string errorsOut=string.Empty;
             if (errorList.Count > 0)
-                errorsOut+="Find some errors!\n";
+                errorsOut+="Find some errors!\n\n";
             else
                 errorsOut += "Done, without errors!\n";
             if (errorList.Count > 0)
                 for (int i = 0; i < parsedInput.Length; i++)
                 {
-                    errorsOut += parsedInput[i];
+                    errorsOut += parsedInput[i]+'\n';
                     foreach (CError curError in errorList)
                         if (curError.lineContainError(i))
                             errorsOut += curError.getErrorInfo();

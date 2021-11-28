@@ -9,6 +9,7 @@ namespace MyCompilerWPF
         private CLexicalAnalyzer lexer;
         private CToken curToken = null;
         bool needToNextToken = true;
+        bool needToAcceptToken = true;
         public CSyntacticalAnalyzer(CInputOutputModule io, CLexicalAnalyzer lex)
         {
             ioModule = io;
@@ -20,16 +21,31 @@ namespace MyCompilerWPF
             {
                 if (needToNextToken)
                     curToken = lexer.GetNextToken();
-                if (expectedToken == curToken)
+                if (needToAcceptToken)
                 {
-                    needToNextToken = true;
-                    return true; 
+                    if (expectedToken == curToken)
+                    {
+                        needToNextToken = true;
+                        return true;
+                    }
+                    else
+                    {
+                        needToNextToken = false;
+                        NeutralizeError();
+                        ioModule.error("Met " + curToken.GetTokenContent() + ", but expected " + expectedToken.GetTokenContent());
+                        return false;
+                    }
                 }
                 else
                 {
-                    needToNextToken = false;
-                    ioModule.error("Met " + curToken.GetTokenContent() + ", but expected " + expectedToken.GetTokenContent());
-                    return false;
+                    if (IsTokenIsKeyWord(curToken))
+                    {
+                        needToAcceptToken = true;
+                        needToNextToken = false;
+                        return Accept(curToken);
+                    }
+                    else
+                        return false;
                 }
             }
             catch (Exception exc)
@@ -45,16 +61,31 @@ namespace MyCompilerWPF
             {
                 if (needToNextToken)
                     curToken = lexer.GetNextToken();
-                if (expectedType == curToken.tokenType)
+                if (needToAcceptToken)
                 {
-                    needToNextToken = true;
-                    return true;
+                    if (expectedType == curToken.tokenType)
+                    {
+                        needToNextToken = true;
+                        return true;
+                    }
+                    else
+                    {
+                        needToNextToken = false;
+                        NeutralizeError();
+                        ioModule.error("Met " + curToken.GetTokenContent() + ", but expected (" + expectedType.ToString().Substring(2) + ')');
+                        return false;
+                    }
                 }
                 else
                 {
-                    needToNextToken = false;
-                    ioModule.error("Met " + curToken.GetTokenContent() + ", but expected (" + expectedType.ToString().Substring(2) + ')');
-                    return false;
+                    if (IsTokenIsKeyWord(curToken))
+                    {
+                        needToAcceptToken = true;
+                        needToNextToken = false;
+                        return Accept(curToken);
+                    }
+                    else
+                        return false;
                 }
             }
             catch (Exception exc)
@@ -76,6 +107,32 @@ namespace MyCompilerWPF
                     throw new Exception(exc.Message + "\n" + ioModule.errorOutput());
                 }
             }
+        }
+        private void NeutralizeError()
+        {
+            needToAcceptToken = false;
+        }
+        private bool IsTokenIsKeyWord(CToken verifiableToken)
+        {
+            if (verifiableToken.operation == EOperator.programsy)
+                return true;
+            if (verifiableToken.operation == EOperator.varsy)
+                return true;
+            if (verifiableToken.operation == EOperator.beginsy)
+                return true;
+            if (verifiableToken.operation == EOperator.ifsy)
+                return true;
+            if (verifiableToken.operation == EOperator.elsesy)
+                return true;
+            if (verifiableToken.operation == EOperator.thensy)
+                return true;
+            if (verifiableToken.operation == EOperator.whilesy)
+                return true;
+            if (verifiableToken.operation == EOperator.dosy)
+                return true;
+            if (verifiableToken.operation == EOperator.endsy)
+                return true;
+            return false;
         }
         public void Program() //<программа>
         {            
@@ -162,6 +219,7 @@ namespace MyCompilerWPF
                 return;
             }
             ioModule.error("Expected for type name");
+            NeutralizeError();
         }
         private void OperatorsSection() //<раздел операторов>
         {
@@ -256,7 +314,10 @@ namespace MyCompilerWPF
                 return;
             }
             else
+            { 
                 ioModule.error("Additive operation expected");
+                NeutralizeError();
+            }
         }
         private void RelationshipOperation()// <операция отношения>
         {
@@ -274,7 +335,10 @@ namespace MyCompilerWPF
             if (curToken.operation == EOperator.greatersy)
             { Accept(new CToken(EOperator.greatersy)); return; }
             else
-                ioModule.error("Expected comparison operation");
+            {
+                NeutralizeError();
+                ioModule.error("Expected comparison operation"); 
+            }
         }
         private void Term()// <слагаемое>
         {
@@ -312,13 +376,13 @@ namespace MyCompilerWPF
             if (curToken.tokenType == ETokenType.ttIdent)
             { Variable(); return; }
             if (curToken.tokenType == ETokenType.ttValue)
-            { Accept(ETokenType.ttValue); return; }      
+            { Accept(ETokenType.ttValue); return; }
             if (curToken.operation == EOperator.notsy)
             {
                 Accept(new CToken(EOperator.notsy));
                 Factor();
                 return;
-            }            
+            }
             if (curToken.operation == EOperator.leftparsy)
             {
                 Accept(new CToken(EOperator.leftparsy));
@@ -327,7 +391,10 @@ namespace MyCompilerWPF
                 return;
             }
             else
+            {
                 ioModule.error("Expected for variable or const or expression or not factor");
+                NeutralizeError();
+            }
         }
         private void ConditionalOperator()// <условный оператор>
         {
