@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Windows;
+using System.Text.RegularExpressions;
 
 namespace MyCompilerWPF
 {
@@ -101,7 +103,7 @@ namespace MyCompilerWPF
                         }
                         return minus ? new CToken(EOperator.minussy): new CToken(EOperator.plussy);
                     }
-                    //try to parse to ttOper or Boolean, all that remains is ttIdent (or error)                    
+                    //try to parse to ttOper or Boolean, all that remains is ttIdent (or error)
                     switch (Char.ToLower(curLetter))
                     {
                         case ' ':
@@ -221,18 +223,12 @@ namespace MyCompilerWPF
                                     return new CToken(EOperator.booleansy);
                                 case "if":
                                     return new CToken(EOperator.ifsy);
-                                case "in":
-                                    return new CToken(EOperator.insy);
                                 case "do":
                                     return new CToken(EOperator.dosy);
                                 case "div":
                                     return new CToken(EOperator.divsy);
-                                case "of":
-                                    return new CToken(EOperator.ofsy);
                                 case "or":
                                     return new CToken(EOperator.orsy);
-                                case "to":
-                                    return new CToken(EOperator.tosy);
                                 case "then":
                                     return new CToken(EOperator.thensy);
                                 case "end":
@@ -245,26 +241,20 @@ namespace MyCompilerWPF
                                     return new CToken(EOperator.andsy);
                                 case "not":
                                     return new CToken(EOperator.notsy);
-                                case "nil":
-                                    return new CToken(EOperator.nilsy);
-                                case "file":
-                                    return new CToken(EOperator.filesy);
                                 case "mod":
                                     return new CToken(EOperator.modsy);
-                                case "set":
-                                    return new CToken(EOperator.setsy);
-                                case "goto":
-                                    return new CToken(EOperator.gotosy);
                                 case "while":
                                     return new CToken(EOperator.whilesy);
                                 case "begin":
                                     return new CToken(EOperator.beginsy);
                                 default:
-                                    if (curSymbol.All(c => Char.IsLetterOrDigit(c) || c == '_'))
+                                    if (Regex.IsMatch(curSymbol, @"^[a-zA-Z0-9_]+$"))
                                         return new CToken(curSymbol, 1);
                                     else
                                     {
                                         ioModule.error("Unexpected symbol!");
+                                        needToReadNewLetter = true;
+                                        //return GetNextToken();
                                         break;
                                     }
                             }

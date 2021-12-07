@@ -22,7 +22,7 @@ namespace MyCompilerWPF
                 ////Task task = Task.Run(() => { synt.Program(); });
                 ////await task;
 
-                synt.Program();                
+                synt.Program();
             }
             catch (Exception exc)
             {
