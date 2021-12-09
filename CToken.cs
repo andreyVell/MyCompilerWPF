@@ -50,21 +50,22 @@
         elsesy,
         beginsy,
         whilesy,
+        writelnsy,
         programsy,
     }
-    enum EValType
+    enum EType
     {
-        vtInt = 0x1,
-        vtReal = 0x2,
-        vtString = 0x4,
-        vtChar = 0x8,
-        vtBoolean
+        et_integer,
+        et_real,
+        et_char,
+        et_string,
+        et_boolean,
     }
     class CToken    
     {        
         public ETokenType tokenType { get; private set; }
         public EOperator operation { get; private set; }
-        public EValType valType { get; private set; }
+        public EType valType { get; private set; }
         public string identName { get; private set; }
         public int ivalue { get; private set; }
         public double dvalue { get; private set; }
@@ -75,31 +76,31 @@
         {            
             ivalue = value;
             tokenType = ETokenType.ttValue;
-            valType = EValType.vtInt;
+            valType = EType.et_integer;
         }
         public CToken(double value) //ttValue real
         {
             dvalue = value;
             tokenType = ETokenType.ttValue;
-            valType = EValType.vtReal;
+            valType = EType.et_real;
         }
         public CToken(char value) //ttValue char
         {
             cvalue = value;
             tokenType = ETokenType.ttValue;
-            valType = EValType.vtChar;
+            valType = EType.et_char;
         }
         public CToken(string value) //ttValue string
         {
             svalue = value;
             tokenType = ETokenType.ttValue;
-            valType = EValType.vtString;
+            valType = EType.et_string;
         }
         public CToken(bool value) //ttValue Boolean
         {
             bvalue = value;
             tokenType = ETokenType.ttValue;
-            valType = EValType.vtBoolean;
+            valType = EType.et_boolean;
         }
         public CToken(EOperator op) //ttOper
         {
@@ -132,24 +133,24 @@
                             if (a.valType == b.valType)
                                 switch (a.valType)
                                 {
-                                    case EValType.vtInt:
+                                    case EType.et_integer:
                                         return (a.ivalue == b.ivalue);
-                                    case EValType.vtReal:
+                                    case EType.et_real:
                                         return (a.dvalue == b.dvalue);
-                                    case EValType.vtChar:
+                                    case EType.et_char:
                                         return (a.cvalue == b.cvalue);
-                                    case EValType.vtString:
+                                    case EType.et_string:
                                         return (a.svalue == b.svalue);
-                                    case EValType.vtBoolean:
+                                    case EType.et_boolean:
                                         return (a.bvalue == b.bvalue);
                                     default:
                                         return false;
                                 }
                             else
-                                if (a.valType == EValType.vtInt && b.valType == EValType.vtReal)
+                                if (a.valType == EType.et_integer && b.valType == EType.et_real)
                                 return a.ivalue == b.dvalue;
                             else
-                                    if (a.valType == EValType.vtReal && b.valType == EValType.vtInt)
+                                    if (a.valType == EType.et_real && b.valType == EType.et_integer)
                                 return a.dvalue == b.ivalue;
                             else
                                 return false;
@@ -168,15 +169,15 @@
             if (this.tokenType==ETokenType.ttValue)
                 switch(this.valType)
                 {
-                    case EValType.vtInt:
+                    case EType.et_integer:
                         return ivalue;
-                    case EValType.vtReal:
+                    case EType.et_real:
                         return dvalue;
-                    case EValType.vtChar:
+                    case EType.et_char:
                         return cvalue;
-                    case EValType.vtString:
+                    case EType.et_string:
                         return svalue;
-                    case EValType.vtBoolean:
+                    case EType.et_boolean:
                         return bvalue;
                 }
             return null;
@@ -192,15 +193,15 @@
                 case ETokenType.ttValue:
                     switch (this.valType)
                     {
-                        case EValType.vtInt:
+                        case EType.et_integer:
                             return '(' + ivalue.ToString() + ')';
-                        case EValType.vtReal:
+                        case EType.et_real:
                             return '(' + dvalue.ToString() + ')';
-                        case EValType.vtChar:
+                        case EType.et_char:
                             return '(' + cvalue.ToString() + ')';
-                        case EValType.vtString:
+                        case EType.et_string:
                             return '(' + svalue + ')';
-                        case EValType.vtBoolean:
+                        case EType.et_boolean:
                             return '(' + bvalue.ToString() + ')';
                     }
                     break;

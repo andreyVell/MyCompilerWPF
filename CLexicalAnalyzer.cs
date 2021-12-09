@@ -245,6 +245,8 @@ namespace MyCompilerWPF
                                     return new CToken(EOperator.modsy);
                                 case "while":
                                     return new CToken(EOperator.whilesy);
+                                case "writeln":
+                                    return new CToken(EOperator.writelnsy);
                                 case "begin":
                                     return new CToken(EOperator.beginsy);
                                 default:

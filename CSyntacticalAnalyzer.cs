@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 
 namespace MyCompilerWPF
 {
     class CSyntacticalAnalyzer
-    {
+    {        
+        private Dictionary<string, CType> identTable;
+        private List<string> identNames;
+        private CType identType;
         private CInputOutputModule ioModule;
         private CLexicalAnalyzer lexer;
         private CToken curToken = null;
@@ -134,6 +138,24 @@ namespace MyCompilerWPF
                 return true;
             return false;
         }
+        private void AddVarsToIdentTable(List<string> identNames, CType identType)
+        {
+            foreach (string name in identNames)
+            {
+                if (identTable.ContainsKey(name))
+                    ioModule.error("Redescription of an identifier!");
+                else
+                    identTable.Add(name, identType); 
+            }
+        }
+        private bool IsVariableDescribed(string name)
+        {
+            if (!identTable.ContainsKey(name))
+            { ioModule.error("Undescribed identifier!"); return false; }
+            return true;
+        }
+
+        //BNF starts
         public void Program() //<программа>
         {            
             Accept(new CToken(EOperator.programsy));
@@ -158,6 +180,7 @@ namespace MyCompilerWPF
             if (curToken.operation == EOperator.varsy)
                 if (Accept(new CToken(EOperator.varsy)))
                 {
+                    identTable = new Dictionary<string, CType>(); //create new IdentTable
                     DescSameVariables();
                     Accept(new CToken(EOperator.semicolonsy));
                     GetNextTokenManualy();
@@ -171,16 +194,39 @@ namespace MyCompilerWPF
         }
         private void DescSameVariables() //<описание однотипных переменных>
         {
+            identNames = new List<string>();
             Name();
+            identNames.Add(curToken.identName);
             GetNextTokenManualy();
             while (curToken == (new CToken(EOperator.commasy)))
             {
                 Accept(new CToken(EOperator.commasy));
                 Name();
+                identNames.Add(curToken.identName);
                 GetNextTokenManualy();
             }
             Accept(new CToken(EOperator.colonsy));
             Type();
+            identType = null;
+            switch (curToken.operation)
+            {
+                case EOperator.integersy:
+                    identType = new CIntegerType();
+                    break;
+                case EOperator.realsy:
+                    identType = new CRealType();
+                    break;
+                case EOperator.charsy:
+                    identType = new CCharType();
+                    break;
+                case EOperator.stringsy:
+                    identType = new CStringType();
+                    break;
+                case EOperator.booleansy:
+                    identType = new CBooleanType();
+                    break;
+            }
+            AddVarsToIdentTable(identNames, identType);
         }
         private void Type() //<тип>
         {
@@ -253,47 +299,76 @@ namespace MyCompilerWPF
             { ConditionalOperator(); return; }
             if (curToken == (new CToken(EOperator.whilesy)))
             { PreconditionLoop(); return; }
+            if (curToken == (new CToken(EOperator.writelnsy)))
+            { WriteLn(); return; }
             return;
         }
         private void AssignOperator()// <оператор присваивания>
         {
-            Variable();
+            CType left, right;
+            left = Variable();
             Accept(new CToken(EOperator.assignsy));
-            Expression();
+            right = Expression();
+            if (left != null && right != null)
+                if (!left.AssignTo(right))
+                    ioModule.error($"It's impossible to assign a ({right.ToString()}) value to an ({left.ToString()}) variable");
         }
-        private void Variable()// <переменная>
+        private CType Variable()// <переменная>
         {
-            FullVariable();
+            GetNextTokenManualy();
+            if (curToken.tokenType == ETokenType.ttIdent)
+            {
+                if (IsVariableDescribed(curToken.identName))
+                    return FullVariable();
+            }
+            else
+                ioModule.error("Expected for variable!");            
+            return null;
         }
-        private void FullVariable()// <полная переменная>
+        private CType FullVariable()// <полная переменная>
         {
-            VariableName();
+            return VariableName();
         }
-        private void VariableName()// <имя переменной>
+        private CType VariableName()// <имя переменной>
         {
             Name();
+            return identTable[curToken.identName];
         }
-        private void Expression()// <выражение> 
+        private CType Expression()// <выражение> (возвращает null в случае синтаксич ошибки)
         {
-            SimpleExpression();
+            CType left, right;
+            left = SimpleExpression();
             GetNextTokenManualy();
             if (curToken==(new CToken(EOperator.equalsy)) || curToken == (new CToken(EOperator.latergreatersy)) || curToken == (new CToken(EOperator.latersy)) || curToken == (new CToken(EOperator.laterequalsy)) || curToken == (new CToken(EOperator.greaterequalsy)) || curToken == (new CToken(EOperator.greatersy)))
             {                
                 RelationshipOperation();
-                SimpleExpression();
+                right = SimpleExpression();
+                if (right != null && left != null && left.IsDerivedTo(right))
+                    return new CBooleanType();
+                else
+                  ioModule.error("Uncomparable types!"); 
             }
+            return left;
         }
-        private void SimpleExpression()// <простое выражение> 
-        {            
+        private CType SimpleExpression()// <простое выражение> 
+        {
+            CType left,right;
+            EOperator operation;
             Sign();
-            Term();
+            left = Term();
             GetNextTokenManualy();
             while (curToken == (new CToken(EOperator.plussy)) || curToken == (new CToken(EOperator.minussy)) || curToken == (new CToken(EOperator.orsy)))
             {                
                 AdditiveOperation();
-                Term();
+                operation = curToken.operation;
+                right = Term();
+                if (right != null && left != null && left.IsDerivedTo(right))
+                    left = CType.DeriveTo(left, operation, right);
+                if (right == null || left == null)
+                    ioModule.error("The operation is not applicable to these types!");
                 GetNextTokenManualy();
             }
+            return left;
         }
         private void AdditiveOperation()// <аддитивная операция>
         {
@@ -340,11 +415,21 @@ namespace MyCompilerWPF
                 ioModule.error("Expected comparison operation"); 
             }
         }
-        private void Term()// <слагаемое>
+        private CType Term()// <слагаемое>
         {
-            Factor();
-            while (MultiplicativeOperation())            
-                Factor();            
+            CType left, right;
+            EOperator operation;
+            left = Factor();
+            while (MultiplicativeOperation())
+            {
+                operation = curToken.operation;
+                right = Factor();
+                if (right != null && left != null && left.IsDerivedTo(right))
+                    left = CType.DeriveTo(left, operation, right);
+                if (right == null || left == null)
+                    ioModule.error("The operation is not applicable to these types!");
+            }
+            return left;
         }
         private bool MultiplicativeOperation()// <мультипликативная операция>
         {
@@ -364,42 +449,67 @@ namespace MyCompilerWPF
         private void Sign() //<знак>
         {
             GetNextTokenManualy();
+            //Console.WriteLine(curToken.GetTokenContent());
             if (curToken.operation == EOperator.plussy)
             { Accept(new CToken(EOperator.plussy));return; }
             if (curToken.operation == EOperator.minussy)
             { Accept(new CToken(EOperator.minussy)); return; }
             //ioModule.error("Sign expected");
         }
-        private void Factor()// <множитель>
+        private CType Factor()// <множитель>
         {
+            CType right = null;
             GetNextTokenManualy();
             if (curToken.tokenType == ETokenType.ttIdent)
-            { Variable(); return; }
+            { return Variable(); }
             if (curToken.tokenType == ETokenType.ttValue)
-            { Accept(ETokenType.ttValue); return; }
+            { 
+                Accept(ETokenType.ttValue);
+                //MessageBox.Show(curToken.GetTokenContent());
+                switch (curToken.valType)
+                {
+                    case EType.et_integer:
+                        return new CIntegerType();
+                    case EType.et_real:
+                        return new CRealType();
+                    case EType.et_char:
+                        return new CCharType();
+                    case EType.et_string:
+                        return new CStringType();
+                    case EType.et_boolean:
+                        return new CBooleanType();
+                }
+            }
             if (curToken.operation == EOperator.notsy)
             {
                 Accept(new CToken(EOperator.notsy));
-                Factor();
-                return;
+                right = Factor();
+                if (right != null && right.myType == EType.et_boolean)
+                    return new CBooleanType();
+                else
+                { ioModule.error("The operation is not applicable to these types!"); return null; }
             }
             if (curToken.operation == EOperator.leftparsy)
             {
                 Accept(new CToken(EOperator.leftparsy));
-                Expression();
+                right = Expression();
                 Accept(new CToken(EOperator.rightparsy));
-                return;
+                return right;
             }
             else
             {
                 ioModule.error("Expected for variable or const or expression or not factor");
                 NeutralizeError();
+                return null;
             }
         }
         private void ConditionalOperator()// <условный оператор>
-        {
+        {            
             Accept(new CToken(EOperator.ifsy));
-            Expression();
+            CType exprType;
+            exprType = Expression();
+            if (exprType != null && exprType.myType != EType.et_boolean) 
+                ioModule.error("Expression must return a boolean value!");
             Accept(new CToken(EOperator.thensy));
             Operator();
             GetNextTokenManualy();
@@ -408,10 +518,20 @@ namespace MyCompilerWPF
         }
         private void PreconditionLoop()// <цикл с предусловием>
         {            
-            Accept(new CToken(EOperator.whilesy));            
-            Expression();            
+            Accept(new CToken(EOperator.whilesy));
+            CType exprType;
+            exprType = Expression();
+            if (exprType != null && exprType.myType != EType.et_boolean)
+                ioModule.error("Expression must return a boolean value!");
             Accept(new CToken(EOperator.dosy));            
             Operator();
+        }
+        private void WriteLn() // <оператор вывода>
+        {
+            Accept(new CToken(EOperator.writelnsy));
+            Accept(new CToken(EOperator.leftparsy));
+            Variable();
+            Accept(new CToken(EOperator.rightparsy));
         }
     }
 }
